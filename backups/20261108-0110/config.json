@@ -1,8 +1,0 @@
-{
-  "refresh_seconds": 5,
-  "switches": [
-    {"id": "switch-1", "name": "SWITCH-1", "host": "127.0.0.1", "community": "switch-1"},
-    {"id": "switch-2", "name": "SWITCH-2", "host": "127.0.0.1", "community": "switch-2"},
-    {"id": "switch-3", "name": "SWITCH-3", "host": "127.0.0.1", "community": "switch-3"}
-  ]
-}
