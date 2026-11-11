@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Switch Monitor</title>
+
+<style>
+:root {
+ --bg:#000000;
+ --surface:#1c1c1e;
+ --surface2:#2c2c2e;
+ --surface3:#38383a;
+ --border:#38383a;
+ --text:#f5f5f7;
+ --muted:#98989f;
+ --accent:#ffd60a;
+ --green:#30d158;
+ --red:#ff453a;
+ --blue:#0a84ff;
+ --radius:20px;
+}
+* { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html { background:var(--bg); scroll-behavior:smooth; }
+body {
+ margin:0;
+ background:var(--bg);
+ color:var(--text);
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",
+ "Segoe UI",Arial,sans-serif;
+ font-size:16px;
+ line-height:1.45;
+}
+header {
+ position:sticky;
+ top:0;
+ z-index:20;
+ min-height:65px;
+ padding:0 22px;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ background:rgba(20,20,22,.94);
+ backdrop-filter:blur(20px);
+ -webkit-backdrop-filter:blur(20px);
+ border-bottom:1px solid rgba(255,255,255,.08);
+}
+.brand {
+ font-size:18px;
+ font-weight:750;
+ letter-spacing:.5px;
+}
+.brand span { color:var(--accent); }
+.header-right { color:var(--muted);font-size:13px; }
+main {
+ width:100%;
+ max-width:1450px;
+ margin:auto;
+ padding:24px;
+}
+nav {
+ display:flex;
+ gap:9px;
+ overflow-x:auto;
+ scrollbar-width:none;
+ margin-bottom:26px;
+ padding:2px 0 8px;
+}
+nav::-webkit-scrollbar { display:none; }
+nav a {
+ flex:0 0 auto;
+ padding:11px 19px;
+ border-radius:30px;
+ background:var(--surface);
+ border:1px solid var(--border);
+ color:var(--muted);
+ text-decoration:none;
+ font-size:15px;
+ font-weight:650;
+}
+nav a.active {
+ color:#111;
+ background:var(--accent);
+ border-color:var(--accent);
+}
+.heading {
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:14px;
+ flex-wrap:wrap;
+ margin-bottom:22px;
+}
+h1 { font-size:29px;letter-spacing:-.7px;margin:0;font-weight:750; }
+h2 { font-size:20px;margin:0 0 16px;letter-spacing:-.3px; }
+h3 { font-size:17px;margin:0; }
+.muted,.device-info { color:var(--muted); }
+.device-info { font-size:14px;margin-top:6px; }
+.status {
+ display:flex;
+ align-items:center;
+ gap:9px;
+ font-size:13px;
+ font-weight:750;
+ letter-spacing:.5px;
+}
+.dot { width:9px;height:9px;border-radius:50%;background:var(--red); }
+.dot.online { background:var(--green);box-shadow:0 0 10px #30d15866; }
+.grid {
+ display:grid;
+ grid-template-columns:repeat(4,minmax(0,1fr));
+ gap:13px;
+}
+.panel,.grid>.panel {
+ background:var(--surface);
+ border:1px solid rgba(255,255,255,.055);
+ border-radius:var(--radius);
+ padding:21px;
+}
+.metric-label {
+ color:var(--muted);
+ font-size:12px;
+ font-weight:700;
+ letter-spacing:.8px;
+ margin-bottom:9px;
+}
+.metric-value {
+ font-size:30px;
+ font-weight:750;
+ letter-spacing:-1px;
+ overflow-wrap:anywhere;
+}
+.metric-sub { color:var(--muted);font-size:13px;margin-top:5px; }
+.content { margin-top:20px; }
+.tabs {
+ display:flex;
+ gap:8px;
+ overflow-x:auto;
+ scrollbar-width:none;
+ margin-bottom:20px;
+ padding-bottom:4px;
+}
+.tabs::-webkit-scrollbar { display:none; }
+.tabs button {
+ flex:0 0 auto;
+ border:0;
+ background:var(--surface2);
+ color:var(--muted);
+ padding:11px 17px;
+ border-radius:25px;
+ font-size:14px;
+ font-weight:650;
+ cursor:pointer;
+}
+.tabs button.active {
+ background:var(--accent);
+ color:#111;
+}
+.table-wrap {
+ overflow-x:auto;
+ border:1px solid var(--border);
+ border-radius:13px;
+ -webkit-overflow-scrolling:touch;
+}
+table { width:100%;border-collapse:collapse;min-width:700px; }
+th {
+ background:var(--surface2);
+ color:var(--muted);
+ font-size:12px;
+ font-weight:700;
+ letter-spacing:.5px;
+ text-align:left;
+ padding:15px;
+ white-space:nowrap;
+}
+td {
+ padding:15px;
+ border-top:1px solid rgba(255,255,255,.06);
+ white-space:nowrap;
+ font-size:14px;
+}
+tr:hover td { background:rgba(255,255,255,.025); }
+.up { color:var(--green);font-weight:700; }
+.down { color:var(--red);font-weight:700; }
+.tab-content.hidden { display:none; }
+.toolbar {
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ gap:12px;
+ flex-wrap:wrap;
+ margin-bottom:15px;
+}
+input {
+ width:min(100%,320px);
+ background:var(--surface2);
+ border:1px solid var(--border);
+ color:var(--text);
+ padding:13px 16px;
+ border-radius:13px;
+ font-size:16px;
+ outline:none;
+}
+input:focus { border-color:var(--accent); }
+input::placeholder { color:var(--muted); }
+.empty { padding:24px;color:var(--muted); }
+footer {
+ text-align:center;
+ padding:25px 12px;
+ color:var(--muted);
+ font-size:12px;
+}
+@media(max-width:850px) {
+ main { padding:20px 16px; }
+ .grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:600px) {
+ body { font-size:15px; }
+ header {
+  min-height:58px;
+  padding:0 17px;
+ }
+ .brand { font-size:16px; }
+ .header-right { font-size:11px; }
+ main { padding:19px 14px 35px; }
+ nav {
+  gap:8px;
+  margin:0 -14px 23px;
+  padding:3px 14px 9px;
+ }
+ nav a { padding:10px 16px;font-size:14px; }
+ .heading { margin-bottom:18px; }
+ h1 { font-size:25px; }
+ h2 { font-size:19px; }
+ .grid { gap:10px; }
+ .grid>.panel { padding:16px 14px;border-radius:17px; }
+ .metric-label { font-size:10px;letter-spacing:.6px; }
+ .metric-value { font-size:25px; }
+ .metric-sub { font-size:11px;line-height:1.4; }
+ .panel { padding:17px 13px;border-radius:18px; }
+ .content { margin-top:15px; }
+ .tabs {
+  margin:0 -2px 17px;
+  gap:7px;
+ }
+ .tabs button { padding:11px 15px;font-size:13px; }
+ .toolbar { align-items:stretch; }
+ .toolbar input { width:100%; }
+ .table-wrap { margin:0 -1px; }
+ th,td { padding:13px 12px; }
+ footer { padding-bottom:30px; }
+}
+@media(max-width:360px) {
+ main { padding-left:10px;padding-right:10px; }
+ .grid>.panel { padding:13px 10px; }
+ .metric-value { font-size:22px; }
+}
+</style>
+
+</head>
+<body>
+
+<header>
+ <div class="brand">NETWORK <span>MONITOR</span></div>
+ <div class="header-right">
+  <span>SNMP v2c</span>
+  <span>Auto refresh: {{ refresh }}s</span>
+ </div>
+</header>
+
+<main>
+ <nav id="switch-nav">
+  <a href="/switch/switch-1" data-id="switch-1">SWITCH-1</a>
+  <a href="/switch/switch-2" data-id="switch-2">SWITCH-2</a>
+  <a href="/switch/switch-3" data-id="switch-3">SWITCH-3</a>
+ </nav>
+
+ <div class="heading">
+  <div>
+   <h1 id="switch-name">Loading switch…</h1>
+   <div class="device-info" id="device-description">Retrieving SNMP information</div>
+  </div>
+  <div class="status">
+   <span class="dot" id="status-dot"></span>
+   <span id="status-text">CONNECTING</span>
+  </div>
+ </div>
+
+ <div class="grid">
+  <div class="panel">
+   <div class="metric-label">CPU UTILIZATION</div>
+   <div class="metric-value" id="cpu">—</div>
+   <div class="metric-sub">Average processor load</div>
+  </div>
+  <div class="panel">
+   <div class="metric-label">MEMORY UTILIZATION</div>
+   <div class="metric-value" id="memory">—</div>
+   <div class="metric-sub" id="memory-detail">Used / available</div>
+  </div>
+  <div class="panel">
+   <div class="metric-label">INTERFACES</div>
+   <div class="metric-value" id="interface-count">—</div>
+   <div class="metric-sub" id="interface-state">Port status</div>
+  </div>
+  <div class="panel">
+   <div class="metric-label">SYSTEM UPTIME</div>
+   <div class="metric-value" id="uptime" style="font-size:22px">—</div>
+   <div class="metric-sub" id="location">Device location</div>
+  </div>
+ </div>
+
+ <section class="content panel">
+  <div class="tabs">
+   <button class="active" data-tab="interfaces">Interfaces</button>
+   <button data-tab="vlans">VLANs</button>
+   <button data-tab="macs">MAC Address Table</button>
+   <button data-tab="device">Device Information</button>
+  </div>
+
+  <div id="interfaces" class="tab-content">
+   <div class="toolbar">
+    <h2>Interface Overview</h2>
+    <input id="interface-search" placeholder="Search interfaces…" aria-label="Search interfaces">
+   </div>
+   <div class="table-wrap">
+    <table>
+     <thead><tr>
+      <th>Interface</th><th>Description</th><th>Status</th>
+      <th>Speed</th><th>RX Mbps</th><th>TX Mbps</th>
+      <th>RX Errors</th><th>TX Errors</th>
+     </tr></thead>
+     <tbody id="interface-rows"><tr><td colspan="8">Loading…</td></tr></tbody>
+    </table>
+   </div>
+  </div>
+
+  <div id="vlans" class="tab-content hidden">
+   <h2>VLAN Configuration</h2>
+   <div class="table-wrap">
+    <table><thead><tr><th>VLAN ID</th><th>VLAN Name</th></tr></thead>
+    <tbody id="vlan-rows"></tbody></table>
+   </div>
+  </div>
+
+  <div id="macs" class="tab-content hidden">
+   <h2>MAC Address Table</h2>
+   <div class="table-wrap">
+    <table><thead><tr><th>MAC Address</th><th>Bridge Port</th><th>Interface</th><th>Status</th></tr></thead>
+    <tbody id="mac-rows"></tbody></table>
+   </div>
+  </div>
+
+  <div id="device" class="tab-content hidden">
+   <h2>Device Information</h2>
+   <div class="table-wrap">
+    <table><tbody id="device-rows"></tbody></table>
+   </div>
+  </div>
+ </section>
+
+ <footer>
+  SNMP Network Monitor · <span id="last-update">Waiting for data</span>
+ </footer>
+</main>
+
+<script>
+const SWITCH_ID = {{ selected_switch|tojson }};
+const REFRESH_MS = {{ refresh * 1000 }};
+let currentInterfaces = [];
+
+function esc(v) {
+ return String(v ?? "—").replace(/[&<>"']/g,c=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ }[c]));
+}
+function fmt(v) {
+ return v === null || v === undefined ? "—" : Number(v).toLocaleString();
+}
+function uptime(v) {
+ if (typeof v === "number") {
+  const seconds = Math.floor(v / 100);
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor(seconds % 86400 / 3600);
+  const mins = Math.floor(seconds % 3600 / 60);
+  return `${days}d ${hours}h ${mins}m`;
+ }
+ return v ?? "—";
+}
+function renderInterfaces() {
+ const q = document.getElementById("interface-search").value.toLowerCase();
+ const rows = currentInterfaces.filter(i =>
+  `${i.name} ${i.description} ${i.alias}`.toLowerCase().includes(q));
+ document.getElementById("interface-rows").innerHTML = rows.map(i=>`
+  <tr>
+   <td><strong>${esc(i.name)}</strong></td>
+   <td>${esc(i.alias || i.description)}</td>
+   <td class="${i.oper===1?'up':'down'}">${i.oper===1?'UP':'DOWN'}</td>
+   <td>${fmt(i.speed_mbps)} Mbps</td>
+   <td>${fmt(i.rx_mbps)}</td><td>${fmt(i.tx_mbps)}</td>
+   <td>${fmt(i.in_errors)}</td><td>${fmt(i.out_errors)}</td>
+  </tr>`).join("") || '<tr><td colspan="8" class="empty">No matching interfaces</td></tr>';
+}
+function render(s) {
+ document.title = s.name + " · Network Monitor";
+ document.getElementById("switch-name").textContent = s.name;
+ document.getElementById("device-description").textContent = s.sys_descr || "—";
+ document.getElementById("status-text").textContent = s.online ? "ONLINE" : "OFFLINE";
+ document.getElementById("status-dot").className = "dot " + (s.online ? "online" : "");
+ document.getElementById("cpu").textContent = s.cpu === null ? "—" : fmt(s.cpu)+"%";
+ document.getElementById("memory").textContent =
+  s.memory_percent === null ? "—" : fmt(s.memory_percent)+"%";
+ document.getElementById("memory-detail").textContent =
+  s.memory_used === null ? "Memory unavailable" :
+  `${fmt(s.memory_used)} used · ${fmt(s.memory_free)} free bytes`;
+
+ currentInterfaces = s.interfaces || [];
+ const up = currentInterfaces.filter(i=>i.oper===1).length;
+ document.getElementById("interface-count").textContent = currentInterfaces.length;
+ document.getElementById("interface-state").textContent =
+  `${up} UP · ${currentInterfaces.length-up} DOWN`;
+ document.getElementById("uptime").textContent = uptime(s.uptime);
+ document.getElementById("location").textContent = s.location || "Location not set";
+ renderInterfaces();
+
+ document.getElementById("vlan-rows").innerHTML = (s.vlans||[]).map(v=>
+  `<tr><td>${esc(v.id)}</td><td>${esc(v.name)}</td></tr>`
+ ).join("") || '<tr><td colspan="2" class="empty">No VLAN data</td></tr>';
+
+ document.getElementById("mac-rows").innerHTML = (s.macs||[]).map(m=>
+  `<tr><td>${esc(m.mac)}</td><td>${esc(m.port)}</td><td>${esc(m.interface)}</td><td>${m.status===3?'Learned':fmt(m.status)}</td></tr>`
+ ).join("") || '<tr><td colspan="4" class="empty">No MAC entries</td></tr>';
+
+ const info = [
+  ["Hostname",s.name],["Address",s.host],["System description",s.sys_descr],
+  ["System uptime",uptime(s.uptime)],["Location",s.location],
+  ["Interface count",s.interface_count],["CPU average",s.cpu===null?"—":s.cpu+"%"],
+  ["Memory used (bytes)",s.memory_used],["Memory free (bytes)",s.memory_free]
+ ];
+ document.getElementById("device-rows").innerHTML = info.map(([k,v])=>
+  `<tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`).join("");
+
+ document.getElementById("last-update").textContent =
+  "Updated " + new Date().toLocaleTimeString();
+}
+async function refresh() {
+ try {
+  const response = await fetch(`/api/switch/${encodeURIComponent(SWITCH_ID)}`,
+   {cache:"no-store"});
+  if (!response.ok) throw new Error("HTTP " + response.status);
+  const data = await response.json();
+  render(data);
+ } catch(e) {
+  document.getElementById("status-text").textContent = "DATA UNAVAILABLE";
+  document.getElementById("status-dot").className = "dot";
+  document.getElementById("last-update").textContent = e.message;
+ }
+}
+document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click",()=>{
+ document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("active"));
+ document.querySelectorAll(".tab-content").forEach(x=>x.classList.add("hidden"));
+ b.classList.add("active");
+ document.getElementById(b.dataset.tab).classList.remove("hidden");
+}));
+document.getElementById("interface-search").addEventListener("input",renderInterfaces);
+document.querySelectorAll("#switch-nav a").forEach(a=>{
+ if(a.dataset.id===SWITCH_ID)a.classList.add("active");
+});
+refresh();
+setInterval(refresh,REFRESH_MS);
+</script>
+</body>
+</html>
